@@ -11,15 +11,11 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    screens: { md: { max: "1050px" }, sm: { max: "550px" } },
+    // screens: { md: { max: "1050px" }, sm: { max: "550px" } },
 
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      },
       colors: {
+        bgGrey: "#303030",
         blue: { 900: "#003da5" },
         blue_gray: { 400: "#7c878e", 900: "#2f2f2f" },
         orange: { 600: "#ed8b00" },
