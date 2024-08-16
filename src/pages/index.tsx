@@ -1,28 +1,16 @@
-import Image from "next/image";
 import { Inter } from "next/font/google";
-import { useMemo } from "react";
-import dynamic from "next/dynamic";
+
+import { Img } from "@/components";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const Map = useMemo(
-    () =>
-      dynamic(() => import("@/components/Map"), {
-        loading: () => <p>A map is loading</p>,
-        ssr: false,
-      }),
-    [],
-  );
-
   return (
-    <div>
-      <Map />
-    </div>
-  );
+    <main
+      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
+    >
+            <Img src="img_group_1.svg" width={824} height={768} alt="Image" className="h-[768px] w-[62%] object-contain" />
 
-  // return (
-  //   <main className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}>
-  //   </main>
-  // );
+    </main>
+  );
 }
