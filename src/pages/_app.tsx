@@ -7,7 +7,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta charSet="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#ffffff" />
         <title>Metro</title>
@@ -19,6 +19,11 @@ export default function App({ Component, pageProps }: AppProps) {
           name="keywords"
           content="mbta boston transit Boston transportation Boston subway MBTA map Boston public transit Massachusetts transit Boston metro Boston bus routes MBTA schedules Boston train map Massachusetts Bay Transportation Authority Boston commute Boston subway map MBTA guide Boston transit app Boston T map"
         />
+        <script
+          defer
+          src="https://umami.jaspermayone.com/script.js"
+          data-website-id="2a301b60-1036-4b4f-aad1-66e74a5da8c9"
+        ></script>
 
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
