@@ -19,11 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
           name="keywords"
           content="mbta boston transit Boston transportation Boston subway MBTA map Boston public transit Massachusetts transit Boston metro Boston bus routes MBTA schedules Boston train map Massachusetts Bay Transportation Authority Boston commute Boston subway map MBTA guide Boston transit app Boston T map"
         />
-        <script
-          defer
-          src="https://umami.jaspermayone.com/script.js"
-          data-website-id="2a301b60-1036-4b4f-aad1-66e74a5da8c9"
-        ></script>
+       <script defer src="https://umami.hogwarts.dev/script.js" data-website-id="e5d22c87-04a8-418c-9c86-e3f7cd9739a2"/>
 
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
