@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Vehicle, VehiclesResponse, Route } from "@/types/mbta";
 import { STATION_COORDS } from "@/config/stationCoords";
+import StationModal from "./StationModal";
 
 interface TrainPosition {
   id: string;
@@ -28,11 +29,152 @@ const ROUTE_COLORS: { [key: string]: string } = {
   "Green-E": "#00843D",
 };
 
+// Station name mapping
+const STATION_NAMES: { [key: string]: string } = {
+  // Green-E Line
+  "place-rvrwy": "Riverway",
+  "place-bckhl": "Back of the Hill",
+  "place-hsmnl": "Heath Street",
+  "place-mfa": "Museum of Fine Arts",
+  "place-nuniv": "Northeastern University",
+  "place-symcl": "Symphony",
+  "place-prmnl": "Prudential",
+  "place-boyls": "Boylston",
+  "place-armnl": "Arlington",
+  "place-coecl": "Copley",
+  "place-mispk": "Mission Park",
+  "place-fenwd": "Fenwood Road",
+  "place-brmnl": "Brigham Circle",
+  "place-lngmd": "Longwood Medical Area",
+  "place-spmnl": "Science Park/West End",
+  "place-lech": "Lechmere",
+  "place-esomr": "East Somerville",
+  "place-gilmn": "Gilman Square",
+  "place-mgngl": "Magoun Square",
+  "place-balsq": "Ball Square",
+  "place-mdftf": "Medford/Tufts",
+  // Orange Line
+  "place-forhl": "Forest Hills",
+  "place-grnst": "Green Street",
+  "place-sbmnl": "Stony Brook",
+  "place-jaksn": "Jackson Square",
+  "place-rcmnl": "Roxbury Crossing",
+  "place-rugg": "Ruggles",
+  "place-masta": "Massachusetts Avenue",
+  "place-bbsta": "Back Bay",
+  "place-chncl": "Chinatown",
+  "place-tumnl": "Tufts Medical Center",
+  "place-state": "State",
+  "place-haecl": "Haymarket",
+  "place-north": "North Station",
+  "place-ccmnl": "Community College",
+  "place-sull": "Sullivan Square",
+  "place-astao": "Assembly",
+  "place-welln": "Wellington",
+  "place-mlmnl": "Malden Center",
+  "place-ogmnl": "Oak Grove",
+  // Red Line
+  "place-pktrm": "Park Street",
+  "place-alfcl": "Alewife",
+  "place-davis": "Davis",
+  "place-portr": "Porter",
+  "place-harsq": "Harvard",
+  "place-cntsq": "Central",
+  "place-knncl": "Kendall/MIT",
+  "place-chmnl": "Charles/MGH",
+  "place-dwnxg": "Downtown Crossing",
+  "place-sstat": "South Station",
+  "place-brdwy": "Broadway",
+  "place-andrw": "Andrew",
+  "place-jfk": "JFK/UMass",
+  "place-shmnl": "Savin Hill",
+  "place-smmnl": "Shawmut",
+  "place-fldcr": "Fields Corner",
+  "place-nqncy": "North Quincy",
+  "place-wlsta": "Wollaston",
+  "place-qnctr": "Quincy Center",
+  "place-qamnl": "Quincy Adams",
+  "place-brntn": "Braintree",
+  // Mattapan Line
+  "place-cedgr": "Cedar Grove",
+  "place-asmnl": "Ashmont",
+  "place-butlr": "Butler",
+  "place-miltt": "Milton",
+  "place-cenav": "Central Avenue",
+  "place-valrd": "Valley Road",
+  "place-capst": "Capen Street",
+  "place-matt": "Mattapan",
+  // Blue Line
+  "place-gover": "Government Center",
+  "place-bomnl": "Bowdoin",
+  "place-aqucl": "Aquarium",
+  "place-mvbcl": "Maverick",
+  "place-aport": "Airport",
+  "place-wimnl": "Wood Island",
+  "place-orhte": "Orient Heights",
+  "place-sdmnl": "Suffolk Downs",
+  "place-bmmnl": "Beachmont",
+  "place-rbmnl": "Revere Beach",
+  "place-wondl": "Wonderland",
+  // Green-D Line
+  "place-river": "Riverside",
+  "place-woodl": "Woodland",
+  "place-waban": "Waban",
+  "place-eliot": "Eliot",
+  "place-newtn": "Newton Highlands",
+  "place-newto": "Newton Centre",
+  "place-chhil": "Chestnut Hill",
+  "place-rsmnl": "Reservoir",
+  "place-bcnfd": "Beaconsfield",
+  "place-brkhl": "Brookline Hills",
+  "place-bvmnl": "Brookline Village",
+  "place-longw": "Longwood",
+  "place-fenwy": "Fenway",
+  "place-kencl": "Kenmore",
+  "place-hymnl": "Hynes Convention Center",
+  "place-unsqu": "Union Square",
+  // Green-C Line
+  "place-clmnl": "Cleveland Circle",
+  "place-engav": "Englewood Avenue",
+  "place-denrd": "Dean Road",
+  "place-tapst": "Tappan Street",
+  "place-bcnwa": "Washington Square",
+  "place-fbkst": "Fairbanks Street",
+  "place-bndhl": "Brandon Hall",
+  "place-sumav": "Summit Avenue",
+  "place-cool": "Coolidge Corner",
+  "place-stpul": "Saint Paul Street",
+  "place-kntst": "Kent Street",
+  "place-hwsst": "Hawes Street",
+  "place-smary": "Saint Mary's Street",
+  // Green-B Line
+  "place-lake": "Boston College",
+  "place-sougr": "South Street",
+  "place-chill": "Chestnut Hill Avenue",
+  "place-chswk": "Chiswick Road",
+  "place-sthld": "Sutherland Road",
+  "place-wascm": "Washington Street",
+  "place-wrnst": "Warren Street",
+  "place-alsgr": "Allston Street",
+  "place-grigg": "Griggs Street",
+  "place-harvd": "Harvard Avenue",
+  "place-brico": "Packard's Corner",
+  "place-babck": "Babcock Street",
+  "place-amory": "Amory Street",
+  "place-buest": "Boston University East",
+  "place-bucen": "Boston University Central",
+  "place-bland": "Blandford Street",
+};
+
 export default function TransitMap() {
   const [trains, setTrains] = useState<TrainPosition[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hoveredTrain, setHoveredTrain] = useState<TrainPosition | null>(null);
+  const [selectedStation, setSelectedStation] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const fetchVehicles = async () => {
     try {
@@ -125,150 +267,336 @@ export default function TransitMap() {
   }, []);
 
   return (
-    <div className="relative">
-      {/* Static Map Background */}
-      <div className="relative w-full">
-        <img
-          src="/images/map-light.png"
-          alt="MBTA Transit Map"
-          className="w-full h-auto"
-        />
+    <div className="space-y-6">
+      {/* Map Container */}
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+        <div className="relative w-full">
+          <img
+            src="/images/map-light.png"
+            alt="MBTA Transit Map"
+            className="w-full h-auto"
+          />
 
-        {/* SVG Overlay for Train Markers */}
+        {/* SVG Overlay for Train Markers and Clickable Stations */}
         <svg
           className="absolute top-0 left-0 w-full h-full"
           viewBox="0 0 826 770"
           preserveAspectRatio="xMidYMid meet"
+          style={{ pointerEvents: "none" }}
         >
-          {/* Animated train markers */}
-          {trains.map((train) => (
-            <g
-              key={train.id}
-              className="train-marker animate-pulse cursor-pointer"
-              onMouseEnter={() => setHoveredTrain(train)}
-              onMouseLeave={() => setHoveredTrain(null)}
-              style={{ pointerEvents: "all" }}
-            >
-              <circle
-                cx={train.x}
-                cy={train.y}
-                r={hoveredTrain?.id === train.id ? "8" : "6"}
-                fill={train.color}
-                stroke="white"
-                strokeWidth="2"
-                opacity="0.9"
-              />
-              <circle
-                cx={train.x}
-                cy={train.y}
-                r={hoveredTrain?.id === train.id ? "12" : "10"}
-                fill={train.color}
-                opacity="0.3"
-              />
-            </g>
+          {/* Clickable station areas - rendered first */}
+          {Object.entries(STATION_COORDS).map(([stationId, coords]) => (
+            <circle
+              key={`station-${stationId}`}
+              cx={coords.x}
+              cy={coords.y}
+              r="12"
+              fill="transparent"
+              className="cursor-pointer hover:fill-white hover:fill-opacity-20 transition-all"
+              style={{ pointerEvents: "auto" }}
+              onClick={() =>
+                setSelectedStation({
+                  id: stationId,
+                  name: STATION_NAMES[stationId] || stationId,
+                })
+              }
+            />
           ))}
+
+          {/* Animated train markers - rendered on top with higher priority */}
+          {trains.map((train) => {
+            const isHovered = hoveredTrain?.id === train.id;
+            return (
+              <g
+                key={train.id}
+                className="train-marker"
+                style={{ pointerEvents: "auto" }}
+              >
+                {/* Invisible larger circle for hover detection */}
+                <circle
+                  cx={train.x}
+                  cy={train.y}
+                  r="15"
+                  fill="transparent"
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredTrain(train)}
+                  onMouseLeave={() => setHoveredTrain(null)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const stationEntry = Object.entries(STATION_COORDS).find(
+                      ([_, coords]) =>
+                        Math.abs(coords.x - train.x) < 8 &&
+                        Math.abs(coords.y - train.y) < 8
+                    );
+                    if (stationEntry) {
+                      setSelectedStation({
+                        id: stationEntry[0],
+                        name: STATION_NAMES[stationEntry[0]] || stationEntry[0],
+                      });
+                    }
+                  }}
+                />
+                {/* Glow effect */}
+                {!isHovered && (
+                  <circle
+                    cx={train.x}
+                    cy={train.y}
+                    r="10"
+                    fill={train.color}
+                    opacity="0.2"
+                    style={{ pointerEvents: "none" }}
+                    className="animate-pulse"
+                  />
+                )}
+                {/* Outer ring on hover */}
+                {isHovered && (
+                  <circle
+                    cx={train.x}
+                    cy={train.y}
+                    r="14"
+                    fill="none"
+                    stroke={train.color}
+                    strokeWidth="2"
+                    opacity="0.4"
+                    style={{ pointerEvents: "none" }}
+                  />
+                )}
+                {/* Main train marker */}
+                <circle
+                  cx={train.x}
+                  cy={train.y}
+                  r={isHovered ? "7" : "6"}
+                  fill={train.color}
+                  stroke="white"
+                  strokeWidth={isHovered ? "2.5" : "2"}
+                  style={{ pointerEvents: "none" }}
+                />
+              </g>
+            );
+          })}
         </svg>
 
-        {/* Tooltip */}
-        {hoveredTrain && (
-          <div
-            className="absolute bg-gray-900 text-white px-3 py-2 rounded-lg shadow-lg border border-gray-700 pointer-events-none z-10 min-w-[200px]"
-            style={{
-              left: `${(hoveredTrain.x / 826) * 100}%`,
-              top: `${(hoveredTrain.y / 770) * 100}%`,
-              transform: "translate(-50%, -120%)",
-            }}
-          >
-            <div className="text-sm font-bold mb-1" style={{ color: hoveredTrain.color }}>
-              {hoveredTrain.route} Line - Train {hoveredTrain.label}
-            </div>
+          {/* Tooltip */}
+          {hoveredTrain && (() => {
+            const xPercent = (hoveredTrain.x / 826) * 100;
+            const yPercent = (hoveredTrain.y / 770) * 100;
 
-            <div className="text-xs space-y-0.5">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Direction:</span>
-                <span className="text-gray-200">
-                  {hoveredTrain.direction === 0 ? "Outbound" : "Inbound"}
-                </span>
+            // Determine positioning based on location
+            let transform = "translate(-50%, -120%)"; // Default: centered above
+
+            // If too far up, show below
+            if (yPercent < 20) {
+              transform = "translate(-50%, 20%)";
+            }
+            // If too far left, align to right of point
+            else if (xPercent < 15) {
+              transform = "translate(10%, -50%)";
+            }
+            // If too far right, align to left of point
+            else if (xPercent > 85) {
+              transform = "translate(-110%, -50%)";
+            }
+
+            return (
+              <div
+                className="absolute bg-white px-4 py-3 rounded-xl shadow-2xl border border-gray-300 pointer-events-none min-w-[220px]"
+                style={{
+                  left: `${xPercent}%`,
+                  top: `${yPercent}%`,
+                  transform,
+                  zIndex: 1000,
+                  backgroundColor: "rgba(255, 255, 255, 0.98)",
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                {/* Arrow indicator */}
+                <div
+                  className="absolute w-3 h-3 bg-white border-gray-300 rotate-45"
+                  style={{
+                    ...(yPercent < 20
+                      ? { top: "-6px", left: "50%", transform: "translateX(-50%) rotate(45deg)", borderTop: "1px solid", borderLeft: "1px solid" }
+                      : xPercent < 15
+                      ? { left: "-6px", top: "50%", transform: "translateY(-50%) rotate(45deg)", borderBottom: "1px solid", borderLeft: "1px solid" }
+                      : xPercent > 85
+                      ? { right: "-6px", top: "50%", transform: "translateY(-50%) rotate(45deg)", borderTop: "1px solid", borderRight: "1px solid" }
+                      : { bottom: "-6px", left: "50%", transform: "translateX(-50%) rotate(45deg)", borderBottom: "1px solid", borderRight: "1px solid" }),
+                  }}
+                ></div>
+              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{
+                    backgroundColor: hoveredTrain.color,
+                    boxShadow: `0 0 8px ${hoveredTrain.color}40`,
+                  }}
+                ></div>
+                <div className="font-bold text-gray-900 text-sm">
+                  {hoveredTrain.route} Line
+                </div>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-gray-400">Carriages:</span>
-                <span className="text-gray-200">{hoveredTrain.carriages}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-gray-400">Status:</span>
-                <span className="text-gray-200">
-                  {hoveredTrain.currentStatus.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
-                </span>
-              </div>
-
-              {hoveredTrain.occupancyStatus && hoveredTrain.occupancyStatus !== "NO_DATA_AVAILABLE" && (
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Occupancy:</span>
-                  <span className={`text-xs font-medium ${
-                    hoveredTrain.occupancyStatus === "MANY_SEATS_AVAILABLE" ? "text-green-400" :
-                    hoveredTrain.occupancyStatus === "FEW_SEATS_AVAILABLE" ? "text-yellow-400" :
-                    hoveredTrain.occupancyStatus === "STANDING_ROOM_ONLY" ? "text-orange-400" :
-                    hoveredTrain.occupancyStatus === "FULL" ? "text-red-400" :
-                    "text-gray-400"
-                  }`}>
-                    {hoveredTrain.occupancyStatus.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+              <div className="space-y-1.5 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500">Train</span>
+                  <span className="font-semibold text-gray-900">
+                    #{hoveredTrain.label}
                   </span>
                 </div>
-              )}
 
-              {hoveredTrain.speed !== null && (
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Speed:</span>
-                  <span className="text-gray-200">{hoveredTrain.speed.toFixed(1)} mph</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500">Direction</span>
+                  <span className="font-medium text-gray-900">
+                    {hoveredTrain.direction === 0 ? "Outbound" : "Inbound"}
+                  </span>
                 </div>
-              )}
 
-              <div className="text-gray-500 text-[10px] mt-1 pt-1 border-t border-gray-700">
-                Updated {new Date(hoveredTrain.updatedAt).toLocaleTimeString()}
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500">Status</span>
+                  <span className="font-medium text-gray-900">
+                    {hoveredTrain.currentStatus
+                      .replace(/_/g, " ")
+                      .toLowerCase()
+                      .replace(/\b\w/g, (l) => l.toUpperCase())}
+                  </span>
+                </div>
+
+                {hoveredTrain.carriages > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">Cars</span>
+                    <span className="font-medium text-gray-900">
+                      {hoveredTrain.carriages}
+                    </span>
+                  </div>
+                )}
+
+                {hoveredTrain.occupancyStatus &&
+                  hoveredTrain.occupancyStatus !== "NO_DATA_AVAILABLE" && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-500">Occupancy</span>
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                          hoveredTrain.occupancyStatus === "MANY_SEATS_AVAILABLE"
+                            ? "bg-green-100 text-green-700"
+                            : hoveredTrain.occupancyStatus === "FEW_SEATS_AVAILABLE"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : hoveredTrain.occupancyStatus === "STANDING_ROOM_ONLY"
+                            ? "bg-orange-100 text-orange-700"
+                            : hoveredTrain.occupancyStatus === "FULL"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {hoveredTrain.occupancyStatus
+                          .replace(/_/g, " ")
+                          .toLowerCase()
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </span>
+                    </div>
+                  )}
+
+                {hoveredTrain.speed !== null && hoveredTrain.speed > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">Speed</span>
+                    <span className="font-medium text-gray-900">
+                      {hoveredTrain.speed.toFixed(0)} mph
+                    </span>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
-        )}
+
+                <div className="text-[10px] text-gray-400 mt-2 pt-2 border-t border-gray-100 text-center">
+                  {new Date(hoveredTrain.updatedAt).toLocaleTimeString()}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
       </div>
 
-      {/* Status Bar */}
-      <div className="mt-4 p-4 bg-gray-800 rounded-lg text-white">
-        <div className="flex justify-between items-center">
-          <div>
-            <span className="font-bold">{trains.length}</span> trains active
+      {/* Info Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Active Trains Card */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">Active Trains</p>
+              <p className="text-4xl font-bold text-gray-900">{trains.length}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <span className="text-2xl">🚇</span>
+            </div>
           </div>
           {lastUpdate && (
-            <div className="text-sm text-gray-400">
-              Last updated: {lastUpdate.toLocaleTimeString()}
-            </div>
+            <p className="text-xs text-gray-400 mt-3">
+              Updated {lastUpdate.toLocaleTimeString()}
+            </p>
           )}
           {error && (
-            <div className="text-sm text-red-400">{error}</div>
+            <p className="text-xs text-red-600 mt-3 bg-red-50 px-2 py-1 rounded">
+              {error}
+            </p>
           )}
         </div>
 
-        {/* Legend */}
-        <div className="mt-3 flex flex-wrap gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#DA291C]"></div>
-            <span>Red Line</span>
+        {/* Legend Card */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <p className="text-sm text-gray-500 mb-4">Transit Lines</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-3 h-3 rounded-full shadow-sm"
+                style={{
+                  backgroundColor: "#DA291C",
+                  boxShadow: "0 0 8px #DA291C40",
+                }}
+              ></div>
+              <span className="text-sm font-medium text-gray-700">Red</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-3 h-3 rounded-full shadow-sm"
+                style={{
+                  backgroundColor: "#ED8B00",
+                  boxShadow: "0 0 8px #ED8B0040",
+                }}
+              ></div>
+              <span className="text-sm font-medium text-gray-700">Orange</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-3 h-3 rounded-full shadow-sm"
+                style={{
+                  backgroundColor: "#003DA5",
+                  boxShadow: "0 0 8px #003DA540",
+                }}
+              ></div>
+              <span className="text-sm font-medium text-gray-700">Blue</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-3 h-3 rounded-full shadow-sm"
+                style={{
+                  backgroundColor: "#00843D",
+                  boxShadow: "0 0 8px #00843D40",
+                }}
+              ></div>
+              <span className="text-sm font-medium text-gray-700">Green</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#ED8B00]"></div>
-            <span>Orange Line</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#003DA5]"></div>
-            <span>Blue Line</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#00843D]"></div>
-            <span>Green Line</span>
-          </div>
+          <p className="text-xs text-gray-400 mt-4 pt-3 border-t border-gray-100">
+            Click any station to see arrivals
+          </p>
         </div>
       </div>
+
+      {/* Station Predictions Modal */}
+      {selectedStation && (
+        <StationModal
+          stationId={selectedStation.id}
+          stationName={selectedStation.name}
+          onClose={() => setSelectedStation(null)}
+        />
+      )}
     </div>
   );
 }

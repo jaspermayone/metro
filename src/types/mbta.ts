@@ -58,3 +58,50 @@ export interface VehiclesResponse {
 export interface RouteColors {
   [key: string]: string;
 }
+
+export interface Prediction {
+  id: string;
+  type: "prediction";
+  attributes: {
+    arrival_time: string | null;
+    departure_time: string | null;
+    direction_id: 0 | 1;
+    status: string | null;
+    stop_sequence: number;
+  };
+  relationships: {
+    route: {
+      data: {
+        id: string;
+        type: "route";
+      };
+    };
+    trip?: {
+      data: {
+        id: string;
+        type: "trip";
+      };
+    };
+    stop: {
+      data: {
+        id: string;
+        type: "stop";
+      };
+    };
+  };
+}
+
+export interface Trip {
+  id: string;
+  type: "trip";
+  attributes: {
+    headsign: string;
+    direction_id: 0 | 1;
+    name: string;
+  };
+}
+
+export interface PredictionsResponse {
+  data: Prediction[];
+  included?: Array<Route | Trip | any>;
+}
