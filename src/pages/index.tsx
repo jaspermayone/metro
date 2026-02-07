@@ -1,21 +1,19 @@
 import { Inter } from "next/font/google";
-
-import { Img } from "@/components";
+import TransitMap from "@/components/TransitMap";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   return (
     <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className} bg-[#303030]`}
+      className={`flex min-h-screen flex-col items-center p-8 ${inter.className} bg-[#303030]`}
     >
-      <Img
-        src="img_group_1.svg"
-        width={824}
-        height={768}
-        alt="Image"
-        className="h-[768px] w-[62%] object-contain"
-      />
+      <div className="w-full max-w-6xl">
+        <h1 className="text-4xl font-bold text-white mb-6">
+          MBTA Live Transit Tracker
+        </h1>
+        <TransitMap />
+      </div>
     </main>
   );
 }
