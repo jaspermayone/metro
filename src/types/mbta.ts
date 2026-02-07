@@ -11,6 +11,8 @@ export interface Vehicle {
     longitude: number;
     speed?: number;
     updated_at: string;
+    carriages?: Array<{ label: string; occupancy_status?: string }>;
+    occupancy_status?: string;
   };
   relationships: {
     route: {

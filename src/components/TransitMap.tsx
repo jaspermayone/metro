@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Vehicle, VehiclesResponse, Route } from "@/types/mbta";
 import { STATION_COORDS } from "@/config/stationCoords";
+import { Route, Vehicle, VehiclesResponse } from "@/types/mbta";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import StationModal from "./StationModal";
 
 interface TrainPosition {
@@ -195,8 +196,8 @@ export default function TransitMap() {
       });
 
       // Convert vehicles to train positions
-      const positions: TrainPosition[] = data.data
-        .map((vehicle: Vehicle) => {
+      const positions = data.data
+        .map((vehicle: Vehicle): TrainPosition | null => {
           const routeId = vehicle.relationships.route.data.id;
           const route = routeMap.get(routeId);
 
@@ -240,9 +241,9 @@ export default function TransitMap() {
               label: vehicle.attributes.label,
               direction: vehicle.attributes.direction_id,
               carriages: vehicle.attributes.carriages?.length || 0,
-              occupancyStatus: vehicle.attributes.occupancy_status,
+              occupancyStatus: vehicle.attributes.occupancy_status || null,
               currentStatus: vehicle.attributes.current_status || "UNKNOWN",
-              speed: vehicle.attributes.speed,
+              speed: vehicle.attributes.speed || null,
               updatedAt: vehicle.attributes.updated_at,
             };
           }
@@ -271,7 +272,7 @@ export default function TransitMap() {
       {/* Map Container */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
         <div className="relative w-full">
-          <img
+          <Image
             src="/images/map-light.png"
             alt="MBTA Transit Map"
             className="w-full h-auto"

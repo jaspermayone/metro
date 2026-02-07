@@ -1,5 +1,6 @@
 import { STATION_COORDS } from "@/config/stationCoords";
 import { Inter } from "next/font/google";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -31,26 +32,6 @@ const LINES = [
 ];
 
 export default function MapEditor() {
-  // Check if map editing is enabled
-  if (process.env.NEXT_PUBLIC_MAP_EDITABLE !== 'true') {
-    return (
-      <main className={`flex items-center justify-center h-screen ${inter.className} bg-[#0a0a0a]`}>
-        <div className="text-center p-6 bg-[#1a1a1a] border border-gray-800 rounded">
-          <h1 className="text-2xl font-bold text-white mb-4">Map Editor Disabled</h1>
-          <p className="text-gray-400 mb-4">
-            The interactive map editor is currently disabled.
-          </p>
-          <button
-            onClick={() => window.location.href = '/'}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition"
-          >
-            Go Home
-          </button>
-        </div>
-      </main>
-    );
-  }
-
   const [selectedLine, setSelectedLine] = useState<string>("Red");
   const [stops, setStops] = useState<MBTAStop[]>([]);
   const [loading, setLoading] = useState(false);
@@ -341,6 +322,26 @@ export default function MapEditor() {
   const progress = stops.length > 0
     ? Math.round((mappedStations.filter(m => m.line === selectedLine).length / stops.length) * 100)
     : 0;
+
+  // Check if map editing is enabled
+  if (process.env.NEXT_PUBLIC_MAP_EDITABLE !== 'true') {
+    return (
+      <main className={`flex items-center justify-center h-screen ${inter.className} bg-[#0a0a0a]`}>
+        <div className="text-center p-6 bg-[#1a1a1a] border border-gray-800 rounded">
+          <h1 className="text-2xl font-bold text-white mb-4">Map Editor Disabled</h1>
+          <p className="text-gray-400 mb-4">
+            The interactive map editor is currently disabled.
+          </p>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition"
+          >
+            Go Home
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className={`flex flex-col h-screen ${inter.className} bg-[#0a0a0a] overflow-hidden`}>
@@ -645,7 +646,7 @@ export default function MapEditor() {
                   onClick={selectedStop && !isPanning && !isDraggingStation ? handleMapClick : undefined}
                   style={{ width: '826px' }}
                 >
-                  <img
+                  <Image
                     src="/images/map-light.png"
                     alt="MBTA Transit Map"
                     className="w-full h-auto block pointer-events-none select-none"

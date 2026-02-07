@@ -30,6 +30,7 @@ export default function StationModal({
     fetchPredictions();
     const interval = setInterval(fetchPredictions, 30000);
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stationId]);
 
   const fetchPredictions = async () => {
