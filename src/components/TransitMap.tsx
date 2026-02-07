@@ -27,6 +27,7 @@ export default function TransitMap() {
   const [trains, setTrains] = useState<TrainPosition[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hoveredTrain, setHoveredTrain] = useState<TrainPosition | null>(null);
 
   const fetchVehicles = async () => {
     try {
@@ -131,11 +132,17 @@ export default function TransitMap() {
         >
           {/* Animated train markers */}
           {trains.map((train) => (
-            <g key={train.id} className="train-marker animate-pulse">
+            <g
+              key={train.id}
+              className="train-marker animate-pulse cursor-pointer"
+              onMouseEnter={() => setHoveredTrain(train)}
+              onMouseLeave={() => setHoveredTrain(null)}
+              style={{ pointerEvents: "all" }}
+            >
               <circle
                 cx={train.x}
                 cy={train.y}
-                r="6"
+                r={hoveredTrain?.id === train.id ? "8" : "6"}
                 fill={train.color}
                 stroke="white"
                 strokeWidth="2"
@@ -144,13 +151,33 @@ export default function TransitMap() {
               <circle
                 cx={train.x}
                 cy={train.y}
-                r="10"
+                r={hoveredTrain?.id === train.id ? "12" : "10"}
                 fill={train.color}
                 opacity="0.3"
               />
             </g>
           ))}
         </svg>
+
+        {/* Tooltip */}
+        {hoveredTrain && (
+          <div
+            className="absolute bg-gray-900 text-white px-3 py-2 rounded-lg shadow-lg border border-gray-700 pointer-events-none z-10"
+            style={{
+              left: `${(hoveredTrain.x / 826) * 100}%`,
+              top: `${(hoveredTrain.y / 770) * 100}%`,
+              transform: "translate(-50%, -120%)",
+            }}
+          >
+            <div className="text-sm font-bold" style={{ color: hoveredTrain.color }}>
+              {hoveredTrain.route} Line
+            </div>
+            <div className="text-xs text-gray-300">Train {hoveredTrain.label}</div>
+            <div className="text-xs text-gray-400">
+              {hoveredTrain.direction === 0 ? "Outbound" : "Inbound"}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Status Bar */}
