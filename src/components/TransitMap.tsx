@@ -10,6 +10,11 @@ interface TrainPosition {
   color: string;
   label: string;
   direction: 0 | 1;
+  carriages: number;
+  occupancyStatus: string | null;
+  currentStatus: string;
+  speed: number | null;
+  updatedAt: string;
 }
 
 const ROUTE_COLORS: { [key: string]: string } = {
@@ -92,6 +97,11 @@ export default function TransitMap() {
               color: ROUTE_COLORS[routeName] || "#666",
               label: vehicle.attributes.label,
               direction: vehicle.attributes.direction_id,
+              carriages: vehicle.attributes.carriages?.length || 0,
+              occupancyStatus: vehicle.attributes.occupancy_status,
+              currentStatus: vehicle.attributes.current_status || "UNKNOWN",
+              speed: vehicle.attributes.speed,
+              updatedAt: vehicle.attributes.updated_at,
             };
           }
 
@@ -162,19 +172,62 @@ export default function TransitMap() {
         {/* Tooltip */}
         {hoveredTrain && (
           <div
-            className="absolute bg-gray-900 text-white px-3 py-2 rounded-lg shadow-lg border border-gray-700 pointer-events-none z-10"
+            className="absolute bg-gray-900 text-white px-3 py-2 rounded-lg shadow-lg border border-gray-700 pointer-events-none z-10 min-w-[200px]"
             style={{
               left: `${(hoveredTrain.x / 826) * 100}%`,
               top: `${(hoveredTrain.y / 770) * 100}%`,
               transform: "translate(-50%, -120%)",
             }}
           >
-            <div className="text-sm font-bold" style={{ color: hoveredTrain.color }}>
-              {hoveredTrain.route} Line
+            <div className="text-sm font-bold mb-1" style={{ color: hoveredTrain.color }}>
+              {hoveredTrain.route} Line - Train {hoveredTrain.label}
             </div>
-            <div className="text-xs text-gray-300">Train {hoveredTrain.label}</div>
-            <div className="text-xs text-gray-400">
-              {hoveredTrain.direction === 0 ? "Outbound" : "Inbound"}
+
+            <div className="text-xs space-y-0.5">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Direction:</span>
+                <span className="text-gray-200">
+                  {hoveredTrain.direction === 0 ? "Outbound" : "Inbound"}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400">Carriages:</span>
+                <span className="text-gray-200">{hoveredTrain.carriages}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status:</span>
+                <span className="text-gray-200">
+                  {hoveredTrain.currentStatus.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                </span>
+              </div>
+
+              {hoveredTrain.occupancyStatus && hoveredTrain.occupancyStatus !== "NO_DATA_AVAILABLE" && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Occupancy:</span>
+                  <span className={`text-xs font-medium ${
+                    hoveredTrain.occupancyStatus === "MANY_SEATS_AVAILABLE" ? "text-green-400" :
+                    hoveredTrain.occupancyStatus === "FEW_SEATS_AVAILABLE" ? "text-yellow-400" :
+                    hoveredTrain.occupancyStatus === "STANDING_ROOM_ONLY" ? "text-orange-400" :
+                    hoveredTrain.occupancyStatus === "FULL" ? "text-red-400" :
+                    "text-gray-400"
+                  }`}>
+                    {hoveredTrain.occupancyStatus.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                  </span>
+                </div>
+              )}
+
+              {hoveredTrain.speed !== null && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Speed:</span>
+                  <span className="text-gray-200">{hoveredTrain.speed.toFixed(1)} mph</span>
+                </div>
+              )}
+
+              <div className="text-gray-500 text-[10px] mt-1 pt-1 border-t border-gray-700">
+                Updated {new Date(hoveredTrain.updatedAt).toLocaleTimeString()}
+              </div>
             </div>
           </div>
         )}
