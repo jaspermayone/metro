@@ -5,7 +5,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const apiKey = process.env.NEXT_PUBLIC_MBTA_API_KEY;
+  const apiKey = process.env.MBTA_API_KEY;
 
   if (!apiKey) {
     return res.status(500).json({ error: "API key not configured" });
